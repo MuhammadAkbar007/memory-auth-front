@@ -9,6 +9,7 @@
 /* 
 
 https://www.svgbackgrounds.com/
+
 for svg background
 
 */
@@ -26,6 +27,21 @@ body {
 
 .my_icon:hover {
     color: #0D6EFD;
+    cursor: pointer;
+}
+
+.lock-icon {
+    font-size: 60px;
+    color: #fff;
+    border-radius: 50%;
+    background-color: #0D6EFD;
+    padding: 15px;
+}
+
+.show-icon {
+    font-size: 2vw;
+    right: 1vw;
+    top: 57px;
     cursor: pointer;
 }
 

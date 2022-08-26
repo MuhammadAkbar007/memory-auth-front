@@ -1,11 +1,36 @@
+import { useEffect } from 'react'
 import moment from 'moment'
 import { useDispatch } from 'react-redux'
-import { deletePost, likePost } from '../../../actions/postsActions'
+import { deletePost, likePost, getPosts } from '../../../actions/postsActions'
 import { AiFillLike, AiFillDelete } from 'react-icons/ai'
 
 const Post = ({ post, setCurrentId }) => {
 
   const dispatch = useDispatch()
+  const user = JSON.parse(localStorage.getItem('profile'))
+
+  useEffect(() => {
+    dispatch(getPosts())
+  }, [user])
+
+  const Likes = () => {
+    if (post.likes.length > 0) {
+      return post.likes.find(like => like === (user?.result?.googleId || user?.result?._id))
+        ? (
+          <>
+            <AiFillLike className={post.likes.length === 1 ? 'text-success' : 'text-warning'} />&nbsp;
+            {post.likes.length > 2 ? `You and ${post.likes.length - 1} others` : `${post.likes.length} like${post.likes.length > 1 ? 's' : ''}`}
+          </>
+        ) : (
+          <>
+            <AiFillLike className={post.likes.length === 1 ? 'text-success' : 'text-warning'} />&nbsp;
+            {post.likes.length} {post.likes.length === 1 ? 'Like' : 'Likes'}
+          </>
+        )
+    }
+
+    return <><AiFillLike className='text-white' />&nbsp;Like</>
+  }
 
   return (
     <div>
@@ -15,11 +40,13 @@ const Post = ({ post, setCurrentId }) => {
         <div className="card-img-overlay text-white">
           <div className="row">
             <div className="col-10">
-              <h6 className="card-title">{post.creator}</h6>
+              <h6 className="card-title">{post.name}</h6>
               <p className="card-text small">{moment(post.createdAt).fromNow()}</p>
             </div>
             <div className="col-2">
-              <p className="card-text" role="button" onClick={() => setCurrentId(post._id)}>...</p>
+              {(user?.result?.googleId === post?.creator || user?.result?._id === post?.creator) && (
+                <p className="card-text text-wrap badge bg-warning" role="button" onClick={() => setCurrentId(post._id)}>...</p>
+              )}
             </div>
           </div>
         </div>
@@ -32,14 +59,18 @@ const Post = ({ post, setCurrentId }) => {
       
       <div className="card-footer shadow text-white rounded">
         <div className="row">
-          <div className="col-4 d-flex align-items-center my_icon" onClick={() => dispatch(likePost(post._id))} >
-            <AiFillLike />
-            Like {post.likeCount}
+          <div className={!user?.result ? "visually-hidden" : "col-4 d-flex align-items-center my_icon"}
+            onClick={() => dispatch(likePost(post._id))} >
+            {/* <AiFillLike />
+            Like {post.likeCount} */}
+            <Likes />
           </div>
-          <div className="col-4 d-flex align-items-center my_icon" onClick={() => dispatch(deletePost(post._id))} >
-            <AiFillDelete />
-            Delete
-          </div>
+          {(user?.result?.googleId === post?.creator || user?.result?._id === post?.creator) && (
+            <div className="col-4 d-flex align-items-center my_icon" onClick={() => dispatch(deletePost(post._id))} >
+              <AiFillDelete />
+              Delete
+            </div>
+          )}
         </div>
       </div>
     

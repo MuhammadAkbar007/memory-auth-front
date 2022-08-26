@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import FileBase64 from 'react-file-base64'
-import { createPost, updatePost } from '../../actions/postsActions'
+import { createPost, updatePost, getPosts } from '../../actions/postsActions'
 
 const Form = ({ currentId, setCurrentId }) => {
 
   const dispatch = useDispatch()
-  const [postData, setPostData] = useState({ creator: '', title: '', message: '', tags: '', selectedFile: '' })
+  const [postData, setPostData] = useState({ title: '', message: '', tags: '', selectedFile: '' })
+  const user = JSON.parse(localStorage.getItem('profile'))
 
   const post = useSelector(state => currentId ? state.posts.find(p => p._id === currentId) : null)
 
@@ -16,26 +17,36 @@ const Form = ({ currentId, setCurrentId }) => {
 
   const clear = () => {
     setCurrentId(null)
-    setPostData({ creator: '', title: '', message: '', tags: '', selectedFile: '' })
+    setPostData({ title: '', message: '', tags: '', selectedFile: '' })
   }
 
   const handleSubmit = async e => {
     e.preventDefault()
 
     if (currentId) {
-      dispatch(updatePost(currentId, postData))
+      dispatch(updatePost(currentId, { ...postData, name: user?.result?.name }))
     } else {
-      dispatch(createPost(postData))
+      dispatch(createPost({ ...postData, name: user?.result?.name }))
     }
     clear()
+  }
+
+  if (!user?.result?.name) {
+    return (
+      <div className="card bg-warning shadow">
+        <div className="card-body text-center py-4">
+          <h1>Please Sign In to create your own memories 🌆 and like 👍 other's memories.</h1>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className='container border shadow'>
       <form autoComplete='off' noValidate onSubmit={handleSubmit} className='py-3 px-3' >
         <h4 className='text-center'><b> {currentId ? 'Editing' : 'Creating'} a Memory</b></h4>
-        <input type="text" placeholder='Creator' className='form-control' value={postData.creator}
-          onChange={e => setPostData({ ...postData, creator: e.target.value })} />
+        {/* <input type="text" placeholder='Creator' className='form-control' value={postData.creator} */}
+        {/* onChange={e => setPostData({ ...postData, creator: e.target.value })} /> */}
         <input type="text" placeholder='Title' className='form-control my-2' value={postData.title}
           onChange={e => setPostData({ ...postData, title: e.target.value })} />
         <input type="text" placeholder='Message' className='form-control' value={postData.message}
